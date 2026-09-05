@@ -7,8 +7,8 @@
   }
 }
 
-/* O seletor fica no fluxo da página: aberto, empurra o conteúdo para baixo. */
-.navegacao-celular { display: none; }
+/* Menu móvel em dialog modal; o layout do PC permanece intacto. */
+.navegacao-celular, .menu-lateral-celular:not([open]) { display: none; }
 
 @media (max-width: 900px) {
   .app-body .app-layout { display: block; height: auto; padding-bottom: 0; }
@@ -17,56 +17,91 @@
   .app-body .ia-flutuante { display: none; }
   .app-body .aviso { bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
 
-  .navegacao-celular {
-    display: block;
-    margin-bottom: 18px;
+  .navegacao-celular { display: block; margin-bottom: 18px; }
+  .abrir-menu-celular {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 54px;
+    padding: 12px 14px;
     border: 1px solid var(--app-borda);
     border-radius: 14px;
     color: var(--app-texto);
     background: var(--app-superficie);
-  }
-  .navegacao-celular > summary {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-height: 54px;
-    padding: 12px 14px;
+    text-align: left;
     cursor: pointer;
-    list-style: none;
   }
-  .navegacao-celular > summary::-webkit-details-marker { display: none; }
-  .navegacao-celular > summary::after { content: "⌄"; margin-left: auto; }
-  .navegacao-celular[open] > summary::after { content: "⌃"; }
-  .navegacao-celular .destino-atual { min-width: 0; overflow-wrap: anywhere; color: var(--app-texto-suave); font-size: .85rem; }
-  .navegacao-celular nav {
-    display: grid;
-    gap: 4px;
-    max-height: 55dvh;
+  .destino-atual { min-width: 0; overflow-wrap: anywhere; color: var(--app-texto-suave); font-size: .85rem; }
+  body.menu-celular-aberto {
+    position: fixed;
+    top: var(--rolagem-menu-celular);
+    inset-inline: 0;
+    width: 100%;
+    overflow: hidden;
+  }
+  .menu-lateral-celular[open] {
+    position: fixed;
+    inset: 0 auto 0 0;
+    display: flex;
+    flex-direction: column;
+    width: min(340px, calc(100% - 44px));
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+    overflow: hidden;
+    border: 0;
+    border-right: 1px solid var(--app-borda);
+    color: var(--app-texto);
+    background: var(--app-superficie);
+    box-shadow: 12px 0 40px rgba(0, 0, 0, .35);
+    animation: abrir-menu-lateral .2s ease-out;
+  }
+  .menu-lateral-celular::backdrop { background: rgba(0, 0, 0, .65); backdrop-filter: blur(2px); }
+  .menu-celular-cabecalho {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--app-borda);
+  }
+  .menu-celular-cabecalho h2 { margin: 0; font-size: 1.2rem; }
+  .fechar-menu-celular {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--app-borda);
+    border-radius: 10px;
+    color: var(--app-texto);
+    background: var(--app-superficie-suave);
+    font-size: 1.8rem;
+    cursor: pointer;
+  }
+  .menu-lateral-celular nav {
+    flex: 1 1 auto;
+    min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: 8px 12px 12px;
-    border-top: 1px solid var(--app-borda);
+    padding: 8px 12px 20px;
   }
-  .navegacao-celular nav p {
-    margin: 14px 10px 4px;
-    color: var(--app-texto-suave);
-    font-size: .75rem;
-    font-weight: 700;
-  }
-  .navegacao-celular nav a {
+  .menu-lateral-celular nav p { margin: 18px 10px 6px; color: var(--app-texto-suave); font-size: .75rem; font-weight: 700; }
+  .menu-lateral-celular nav a {
     display: flex;
     align-items: center;
-    min-height: 44px;
+    min-height: 48px;
+    margin-block: 3px;
     padding: 10px;
     border-radius: 8px;
-    font-size: .9rem;
+    font-size: .95rem;
     overflow-wrap: anywhere;
   }
-  .navegacao-celular nav a:hover,
-  .navegacao-celular nav a[aria-current="page"] {
-    color: var(--app-texto);
-    background: var(--app-destaque-suave);
-  }
+  .menu-lateral-celular nav a:hover,
+  .menu-lateral-celular nav a[aria-current="page"] { color: var(--app-texto); background: var(--app-destaque-suave); }
+  @keyframes abrir-menu-lateral { from { transform: translateX(-100%); } to { transform: translateX(0); } }
 
   /* As faixas decorativas fixas cobriam texto e campos no cadastro. */
   .autenticacao::before,
@@ -143,4 +178,8 @@
 
 @media (max-width: 980px) {
   .navegacao.aberta { max-height: calc(100dvh - 82px); overflow-y: auto; overscroll-behavior: contain; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-lateral-celular[open] { animation: none; }
 }

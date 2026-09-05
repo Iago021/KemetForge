@@ -28,20 +28,28 @@ const paginas = ['index.html', ...fs.readdirSync(path.join(__dirname, '../pagina
         assert.ok(problemas.largura <= width + 1, `${width} ${pagina}: rolagem da página`);
         if (await page.locator('.navegacao-celular').count()) {
           assert.equal(await page.locator('.barra-lateral:visible').count(), 0);
-          const summary = page.locator('.navegacao-celular > summary');
+          const summary = page.locator('.abrir-menu-celular');
+          const headerBefore = await page.locator('h1').boundingBox();
           await summary.tap();
-          const links = page.locator('.navegacao-celular nav a');
+          const links = page.locator('.menu-lateral-celular nav a');
           assert.equal(await links.count(), 11);
-          const menuBounds = await page.locator('.navegacao-celular').boundingBox();
+          const drawer = page.locator('.menu-lateral-celular');
+          assert.ok(await drawer.evaluate(e => e.matches(':modal')), 'Menu deve sobrepor toda a página como modal');
+          const menuBounds = await drawer.boundingBox();
+          assert.equal(menuBounds.y, 0);
+          assert.equal(menuBounds.height, width === 844 ? 390 : 844);
+          assert.ok(menuBounds.width <= width - 43, 'Fundo deve ficar acessível para fechar');
           const headerBounds = await page.locator('h1').boundingBox();
-          assert.ok(headerBounds.y >= menuBounds.y + menuBounds.height, 'Menu aberto não deve cobrir o conteúdo');
+          assert.equal(headerBounds.y, headerBefore.y, 'Abrir menu não deve empurrar o conteúdo');
+          assert.equal(await page.locator('body').evaluate(e => getComputedStyle(e).overflow), 'hidden');
           for (const link of [links.first(), links.nth(4), links.last()]) {
             await link.tap({ trial: true });
             const r = await link.boundingBox();
             assert.ok(r.x >= 0 && r.x + r.width <= width + 1 && r.y >= 0 && r.height >= 44);
           }
-          await page.locator('h1').tap();
-          assert.equal(await page.locator('.navegacao-celular').getAttribute('open'), null);
+          await page.touchscreen.tap(width - 10, 100);
+          await page.waitForFunction(() => !document.querySelector('.menu-lateral-celular').open && !document.body.classList.contains('menu-celular-aberto'));
+          assert.equal(await summary.getAttribute('aria-expanded'), 'false');
         }
         if (await page.locator('.autenticacao').count()) {
           const decorations = await page.locator('.autenticacao').evaluate(e => ['::before', '::after'].map(p => getComputedStyle(e, p).display));
@@ -66,15 +74,15 @@ const paginas = ['index.html', ...fs.readdirSync(path.join(__dirname, '../pagina
     await context.addInitScript(() => localStorage.setItem('kemet_menu_recolhido', '1'));
     const page = await context.newPage();
     await page.goto(base + '/paginas/painel.html');
-    await page.locator('.navegacao-celular > summary').tap();
-    await page.locator('.navegacao-celular a[href="receitas.html"]').tap();
+    await page.locator('.abrir-menu-celular').tap();
+    await page.locator('.menu-lateral-celular a[href="receitas.html"]').tap();
     await page.waitForURL('**/receitas.html');
     assert.equal(await page.evaluate(() => localStorage.getItem('kemet_menu_recolhido')), '1');
     await page.setViewportSize({ width: 1366, height: 900 });
     assert.ok(await page.locator('body').evaluate(e => e.classList.contains('menu-recolhido')));
     await page.setViewportSize({ width: 390, height: 700 });
-    await page.locator('.navegacao-celular > summary').tap();
-    await page.locator('.navegacao-celular a[href="calendario.html"]').tap();
+    await page.locator('.abrir-menu-celular').tap();
+    await page.locator('.menu-lateral-celular a[href="calendario.html"]').tap();
     await page.waitForURL('**/calendario.html');
     const titulo = await page.locator('.calendario-navegacao h2').textContent();
     await page.getByRole('button', { name: 'Próximo mês', exact: true }).tap();
@@ -106,9 +114,29 @@ const paginas = ['index.html', ...fs.readdirSync(path.join(__dirname, '../pagina
     await page.locator('input[type=checkbox]').check();
     await page.getByRole('button', { name: 'Criar conta', exact: true }).tap();
     await page.waitForURL('**/painel.html');
-    await page.locator('.navegacao-celular > summary').tap();
+    await page.locator('.abrir-menu-celular').tap();
     await page.keyboard.press('Escape');
-    assert.equal(await page.locator('.navegacao-celular').getAttribute('open'), null);
+    await page.waitForFunction(() => !document.querySelector('.menu-lateral-celular').open && !document.body.classList.contains('menu-celular-aberto'));
+    assert.equal(await page.locator('.abrir-menu-celular').getAttribute('aria-expanded'), 'false');
+    // O dialog prende o foco e devolve a rolagem ao fechar.
+    await page.locator('.abrir-menu-celular').tap();
+    await page.keyboard.press('Shift+Tab');
+    assert.equal(await page.evaluate(() => document.activeElement.textContent), 'Sair');
+    await page.keyboard.press('Tab');
+    assert.equal(await page.evaluate(() => document.activeElement.getAttribute('aria-label')), 'Fechar menu');
+    await page.getByRole('button', { name: 'Fechar menu', exact: true }).tap();
+    await page.waitForFunction(() => !document.body.classList.contains('menu-celular-aberto'));
+    await page.evaluate(() => window.scrollTo(0, 300));
+    const scrollBefore = await page.evaluate(() => window.scrollY);
+    // Dispara o mesmo botão sem o teste reposicionar a página antes do clique.
+    await page.locator('.abrir-menu-celular').evaluate(e => e.click());
+    await page.getByRole('button', { name: 'Fechar menu', exact: true }).tap();
+    await page.waitForFunction(y => window.scrollY === y && !document.body.classList.contains('menu-celular-aberto'), scrollBefore);
+    await page.locator('.abrir-menu-celular').tap();
+    await page.setViewportSize({ width: 1366, height: 900 });
+    await page.waitForFunction(() => !document.body.classList.contains('menu-celular-aberto'));
+    assert.equal(await page.locator('.menu-lateral-celular').getAttribute('open'), null);
+    await page.setViewportSize({ width: 390, height: 700 });
     await page.goto(base + '/index.html');
     await page.locator('[data-menu-botao]').tap();
     assert.equal(await page.locator('[data-menu-botao]').getAttribute('aria-expanded'), 'true');
