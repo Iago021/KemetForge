@@ -1,0 +1,185 @@
+/* Carregado por último: ajustes de celular sem alterar o layout de PC. */
+@media (max-width: 900px) {
+  .app-body .workspace-grade,
+  .app-body .ia-layout-novo,
+  .app-body .relatorios-grade {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Menu móvel em dialog modal; o layout do PC permanece intacto. */
+.navegacao-celular, .menu-lateral-celular:not([open]) { display: none; }
+
+@media (max-width: 900px) {
+  .app-body .app-layout { display: block; height: auto; padding-bottom: 0; }
+  .app-body .app-principal { min-width: 0; }
+  .app-body .barra-lateral,
+  .app-body .ia-flutuante { display: none; }
+  .app-body .aviso { bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
+
+  .navegacao-celular { display: block; margin-bottom: 18px; }
+  .abrir-menu-celular {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 54px;
+    padding: 12px 14px;
+    border: 1px solid var(--app-borda);
+    border-radius: 14px;
+    color: var(--app-texto);
+    background: var(--app-superficie);
+    text-align: left;
+    cursor: pointer;
+  }
+  .destino-atual { min-width: 0; overflow-wrap: anywhere; color: var(--app-texto-suave); font-size: .85rem; }
+  body.menu-celular-aberto {
+    position: fixed;
+    top: var(--rolagem-menu-celular);
+    inset-inline: 0;
+    width: 100%;
+    overflow: hidden;
+  }
+  .menu-lateral-celular[open] {
+    position: fixed;
+    inset: 0 auto 0 0;
+    display: flex;
+    flex-direction: column;
+    width: min(340px, calc(100% - 44px));
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+    overflow: hidden;
+    border: 0;
+    border-right: 1px solid var(--app-borda);
+    color: var(--app-texto);
+    background: var(--app-superficie);
+    box-shadow: 12px 0 40px rgba(0, 0, 0, .35);
+    animation: abrir-menu-lateral .2s ease-out;
+  }
+  .menu-lateral-celular::backdrop { background: rgba(0, 0, 0, .65); backdrop-filter: blur(2px); }
+  .menu-celular-cabecalho {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--app-borda);
+  }
+  .menu-celular-cabecalho h2 { margin: 0; font-size: 1.2rem; }
+  .fechar-menu-celular {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--app-borda);
+    border-radius: 10px;
+    color: var(--app-texto);
+    background: var(--app-superficie-suave);
+    font-size: 1.8rem;
+    cursor: pointer;
+  }
+  .menu-lateral-celular nav {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 8px 12px 20px;
+  }
+  .menu-lateral-celular nav p { margin: 18px 10px 6px; color: var(--app-texto-suave); font-size: .75rem; font-weight: 700; }
+  .menu-lateral-celular nav a {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    margin-block: 3px;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: .95rem;
+    overflow-wrap: anywhere;
+  }
+  .menu-lateral-celular nav a:hover,
+  .menu-lateral-celular nav a[aria-current="page"] { color: var(--app-texto); background: var(--app-destaque-suave); }
+  @keyframes abrir-menu-lateral { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+
+  /* As faixas decorativas fixas cobriam texto e campos no cadastro. */
+  .autenticacao::before,
+  .autenticacao::after { display: none; }
+  .autenticacao {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-content: start;
+    align-items: center;
+    gap: 24px 12px;
+    padding: 16px 16px 32px;
+  }
+  .autenticacao .logo-canto,
+  .autenticacao .voltar { position: static; }
+  .autenticacao .logo-canto { justify-self: start; }
+  .autenticacao .logo-canto img { width: 118px; }
+  .autenticacao .voltar { justify-self: end; text-align: right; font-size: .875rem; }
+  .autenticacao .cadastro-wrap,
+  .autenticacao .login-grade { grid-column: 1 / -1; }
+  .autenticacao .cadastro-titulo { font-size: clamp(1.75rem, 7vw, 2.5rem); line-height: 1.2; }
+}
+
+@media (max-width: 700px) {
+  .app-body .acoes-card .acoes-rapidas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .app-body .card-cabecalho,
+  .app-body .modulo-cabecalho { flex-wrap: wrap; }
+  .app-body .calendario-navegacao { flex-wrap: nowrap; }
+  .app-body .topo-acoes > .perfil-compacto { flex: 0 0 auto; margin-left: auto; }
+  .app-body .perfil-compacto .perfil-menu { right: 0; }
+  .app-body .tabela-dados,
+  .app-body .ficha-tecnica { max-width: 100%; overscroll-behavior-x: contain; }
+
+  /* A semana inteira cabe na tela, inclusive em aparelhos de 320px. */
+  .app-body .semana-cabecalho,
+  .app-body .mes-grid {
+    min-width: 0;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 3px;
+  }
+  .app-body .mes-grid > button,
+  .app-body .mes-grid > span { min-width: 0; min-height: 44px; padding-inline: 0; }
+  .app-body .semana-cabecalho span { padding-inline: 0; }
+
+  /* Campos de 16px evitam o zoom automático do Safari ao digitar. */
+  body input, body select, body textarea { min-width: 0; max-width: 100%; font-size: 16px; }
+  .app-body .app-botao,
+  .app-body .chip-filtro,
+  .app-body .campo-compacto input,
+  .app-body .campo-compacto select,
+  .app-body .calendario-navegacao button { min-height: 44px; }
+  .app-body .calendario-navegacao button { min-width: 44px; }
+  .app-body .chat-form { grid-template-columns: minmax(0, 1fr); }
+  .app-body .chat-topo { grid-template-columns: 36px minmax(0, 1fr); }
+  .app-body .chat-topo > .status { grid-column: 2; justify-self: start; }
+  .app-body .mensagem { overflow-wrap: anywhere; }
+
+  .app-body .modal-fundo {
+    padding: 10px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .app-body .modal {
+    min-width: 0;
+    max-height: calc(100dvh - 24px - env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 18px;
+  }
+  .app-body .modal .form-grade { grid-template-columns: minmax(0, 1fr); }
+  .app-body .modal-topo { gap: 10px; }
+  .app-body .fechar-modal { flex: 0 0 44px; width: 44px; height: 44px; }
+}
+
+@media (max-width: 980px) {
+  .navegacao.aberta { max-height: calc(100dvh - 82px); overflow-y: auto; overscroll-behavior: contain; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-lateral-celular[open] { animation: none; }
+}

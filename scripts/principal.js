@@ -141,7 +141,7 @@
 
     menuApp.querySelectorAll("[data-menu-pai]").forEach(function (botaoPai) {
       botaoPai.addEventListener("click", function () {
-        if (document.body.classList.contains("menu-recolhido")) {
+        if (window.innerWidth > 700 && document.body.classList.contains("menu-recolhido")) {
           document.body.classList.remove("menu-recolhido");
           localStorage.setItem("kemet_menu_recolhido", "0");
         }
