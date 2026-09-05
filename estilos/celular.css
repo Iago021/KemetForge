@@ -1,0 +1,156 @@
+/* Carregado por último: ajustes de celular sem alterar o layout de PC. */
+@media (max-width: 900px) {
+  .app-body .workspace-grade,
+  .app-body .ia-layout-novo,
+  .app-body .relatorios-grade {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 701px) and (max-width: 900px) {
+  .app-body .app-layout { grid-template-columns: 82px minmax(0, 1fr); }
+}
+
+@media (max-width: 700px) {
+  .app-body {
+    --altura-menu-celular: 72px;
+    --espaco-menu-celular: calc(var(--altura-menu-celular) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .app-body .app-layout { padding-bottom: var(--espaco-menu-celular); }
+  .app-body .app-principal { min-width: 0; }
+
+  /* Cinco destinos sempre visíveis; submenus abrem acima da barra. */
+  .app-body .barra-lateral {
+    height: var(--espaco-menu-celular);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+    overflow: visible;
+  }
+
+  .app-body .barra-menu,
+  .app-body .menu-app .menu-separador,
+  .app-body .menu-app a.menu-sair,
+  .app-body .menu-pai .menu-seta { display: none; }
+
+  .app-body .menu-app {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    height: var(--altura-menu-celular);
+    padding: 0;
+    overflow: visible;
+  }
+
+  .app-body .menu-grupo { width: auto; min-width: 0; }
+  body.app-body .menu-app > a,
+  body.app-body .menu-pai {
+    width: 100%;
+    min-width: 0;
+    height: var(--altura-menu-celular);
+    min-height: var(--altura-menu-celular);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 36px auto;
+    align-content: center;
+    justify-items: center;
+    gap: 2px;
+    padding: 5px 2px;
+  }
+
+  body.app-body .menu-app .menu-rotulo {
+    display: block;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: center;
+    font-size: .625rem;
+    line-height: 1.2;
+  }
+
+  .app-body .menu-icone { width: 32px; height: 32px; }
+  .app-body .menu-app > a.ativo::before { width: 100%; height: 3px; inset: 0 0 auto; }
+
+  body.app-body .menu-submenu {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    bottom: calc(var(--espaco-menu-celular) + 8px);
+    max-height: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  body.app-body .menu-grupo.aberto .menu-submenu {
+    max-height: calc(100dvh - var(--espaco-menu-celular) - 24px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  body.app-body .menu-submenu a {
+    justify-content: flex-start;
+    min-height: 48px;
+    padding: 12px;
+  }
+  body.app-body .menu-submenu .menu-rotulo { font-size: .875rem; text-align: left; }
+  .app-body .menu-submenu a.ativo::before { width: 3px; height: 100%; inset: 0 auto 0 0; }
+
+  /* O assistente já está na navegação; não sobrepor botões com outro atalho. */
+  .app-body .ia-flutuante { display: none; }
+  .app-body .aviso { bottom: calc(var(--espaco-menu-celular) + 12px); }
+
+  .app-body .acoes-card .acoes-rapidas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .app-body .card-cabecalho,
+  .app-body .modulo-cabecalho { flex-wrap: wrap; }
+  .app-body .calendario-navegacao { flex-wrap: nowrap; }
+  .app-body .topo-acoes > .perfil-compacto { flex: 0 0 auto; margin-left: auto; }
+  .app-body .perfil-compacto .perfil-menu { right: 0; }
+  .app-body .tabela-dados,
+  .app-body .ficha-tecnica { max-width: 100%; overscroll-behavior-x: contain; }
+
+  /* A semana inteira cabe na tela, inclusive em aparelhos de 320px. */
+  .app-body .semana-cabecalho,
+  .app-body .mes-grid {
+    min-width: 0;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 3px;
+  }
+  .app-body .mes-grid > button,
+  .app-body .mes-grid > span { min-width: 0; min-height: 44px; padding-inline: 0; }
+  .app-body .semana-cabecalho span { padding-inline: 0; }
+
+  /* Campos de 16px evitam o zoom automático do Safari ao digitar. */
+  body input, body select, body textarea { min-width: 0; max-width: 100%; font-size: 16px; }
+  .app-body .app-botao,
+  .app-body .chip-filtro,
+  .app-body .campo-compacto input,
+  .app-body .campo-compacto select,
+  .app-body .calendario-navegacao button { min-height: 44px; }
+  .app-body .calendario-navegacao button { min-width: 44px; }
+  .app-body .chat-form { grid-template-columns: minmax(0, 1fr); }
+  .app-body .chat-topo { grid-template-columns: 36px minmax(0, 1fr); }
+  .app-body .chat-topo > .status { grid-column: 2; justify-self: start; }
+  .app-body .mensagem { overflow-wrap: anywhere; }
+
+  .app-body .modal-fundo {
+    padding: 10px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .app-body .modal {
+    min-width: 0;
+    max-height: calc(100dvh - 24px - env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 18px;
+  }
+  .app-body .modal .form-grade { grid-template-columns: minmax(0, 1fr); }
+  .app-body .modal-topo { gap: 10px; }
+  .app-body .fechar-modal { flex: 0 0 44px; width: 44px; height: 44px; }
+}
+
+@media (max-width: 980px) {
+  .navegacao.aberta { max-height: calc(100dvh - 82px); overflow-y: auto; overscroll-behavior: contain; }
+}
