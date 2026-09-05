@@ -1,37 +1,55 @@
 (function () {
   "use strict";
 
-  var celular = window.matchMedia("(max-width: 700px)");
+  var celular = window.matchMedia("(max-width: 900px)");
   var menu = document.querySelector(".menu-app");
+  var principal = document.querySelector(".app-principal");
 
-  if (menu) {
-    function atualizarSubmenus() {
-      menu.querySelectorAll(".menu-grupo").forEach(function (grupo) {
-        grupo.querySelector(".menu-submenu").inert = celular.matches && !grupo.classList.contains("aberto");
-      });
+  if (menu && principal) {
+    var seletor = document.createElement("details");
+    seletor.className = "navegacao-celular";
+    var resumo = document.createElement("summary");
+    var rotulo = document.createElement("strong");
+    rotulo.textContent = "☰ Menu";
+    var destino = document.createElement("span");
+    destino.className = "destino-atual";
+    var linkAtual = menu.querySelector("a.ativo .menu-rotulo");
+    destino.textContent = linkAtual ? linkAtual.textContent : principal.querySelector("h1").textContent;
+    resumo.append(rotulo, destino);
+    var destinos = document.createElement("nav");
+    destinos.setAttribute("aria-label", "Escolha onde entrar");
+
+    function adicionarLink(original) {
+      var link = document.createElement("a");
+      link.href = original.getAttribute("href");
+      link.textContent = original.querySelector(".menu-rotulo").textContent;
+      if (original.classList.contains("ativo")) link.setAttribute("aria-current", "page");
+      destinos.appendChild(link);
     }
 
-    function fecharSubmenus() {
-      menu.querySelectorAll(".menu-grupo.aberto").forEach(function (grupo) {
-        grupo.classList.remove("aberto");
-        grupo.querySelector("[data-menu-pai]").setAttribute("aria-expanded", "false");
-      });
-      atualizarSubmenus();
-    }
+    Array.prototype.forEach.call(menu.children, function (item) {
+      if (item.matches("a")) adicionarLink(item);
+      if (item.matches(".menu-grupo")) {
+        var grupo = document.createElement("p");
+        grupo.textContent = item.querySelector(".menu-pai .menu-rotulo").textContent;
+        destinos.appendChild(grupo);
+        item.querySelectorAll(".menu-submenu a").forEach(adicionarLink);
+      }
+    });
+    seletor.append(resumo, destinos);
+    principal.prepend(seletor);
 
     document.addEventListener("click", function (evento) {
-      if (!celular.matches) return;
-      if (!menu.contains(evento.target) || evento.target.closest(".menu-submenu a")) fecharSubmenus();
-      else atualizarSubmenus();
+      if (!celular.matches || !seletor.open) return;
+      if (!seletor.contains(evento.target) || evento.target.closest(".navegacao-celular a")) seletor.open = false;
     });
     document.addEventListener("keydown", function (evento) {
-      if (celular.matches && evento.key === "Escape") atualizarSubmenus();
+      if (celular.matches && evento.key === "Escape" && seletor.open) {
+        seletor.open = false;
+        resumo.focus();
+      }
     });
-    celular.addEventListener("change", function () {
-      if (celular.matches) fecharSubmenus();
-      else atualizarSubmenus();
-    });
-    atualizarSubmenus();
+    celular.addEventListener("change", function () { seletor.open = false; });
   }
 
   var botaoPublico = document.querySelector("[data-menu-botao]");

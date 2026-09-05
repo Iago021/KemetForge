@@ -26,20 +26,33 @@ const paginas = ['index.html', ...fs.readdirSync(path.join(__dirname, '../pagina
         });
         assert.deepEqual(problemas.fora, [], `${width} ${pagina}: conteúdo cortado`);
         assert.ok(problemas.largura <= width + 1, `${width} ${pagina}: rolagem da página`);
-        if (width <= 700 && await page.locator('.menu-app').count()) {
-          const nav = await page.locator('.menu-app').evaluate(e => ({ width: e.clientWidth, scroll: e.scrollWidth }));
-          assert.ok(nav.scroll <= nav.width + 1, `${width} ${pagina}: menu cortado`);
-          assert.equal(await page.locator('.menu-app > a:visible, .menu-pai:visible').count(), 5);
-          await page.locator('[data-menu-grupo="estoque"] > button').tap();
-          const links = page.locator('[data-menu-grupo="estoque"] .menu-submenu a');
-          assert.equal(await links.count(), 4);
-          for (const link of await links.all()) {
+        if (await page.locator('.navegacao-celular').count()) {
+          assert.equal(await page.locator('.barra-lateral:visible').count(), 0);
+          const summary = page.locator('.navegacao-celular > summary');
+          await summary.tap();
+          const links = page.locator('.navegacao-celular nav a');
+          assert.equal(await links.count(), 11);
+          const menuBounds = await page.locator('.navegacao-celular').boundingBox();
+          const headerBounds = await page.locator('h1').boundingBox();
+          assert.ok(headerBounds.y >= menuBounds.y + menuBounds.height, 'Menu aberto não deve cobrir o conteúdo');
+          for (const link of [links.first(), links.nth(4), links.last()]) {
             await link.tap({ trial: true });
             const r = await link.boundingBox();
             assert.ok(r.x >= 0 && r.x + r.width <= width + 1 && r.y >= 0 && r.height >= 44);
           }
           await page.locator('h1').tap();
-          assert.equal(await page.locator('[data-menu-grupo="estoque"] > button').getAttribute('aria-expanded'), 'false');
+          assert.equal(await page.locator('.navegacao-celular').getAttribute('open'), null);
+        }
+        if (await page.locator('.autenticacao').count()) {
+          const decorations = await page.locator('.autenticacao').evaluate(e => ['::before', '::after'].map(p => getComputedStyle(e, p).display));
+          assert.deepEqual(decorations, ['none', 'none'], 'Faixas não devem cobrir o formulário');
+          const logo = await page.locator('.logo-canto').boundingBox();
+          const back = await page.locator('.voltar').boundingBox();
+          assert.ok(logo.x + logo.width <= back.x, 'Logo não deve sobrepor o link');
+          await page.locator('input').first().fill('teste');
+          await page.locator('input').first().scrollIntoViewIfNeeded();
+          const input = await page.locator('input').first().boundingBox();
+          assert.ok(await page.evaluate(r => document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2)?.tagName === 'INPUT', input));
         }
         checks++;
       }
@@ -53,15 +66,15 @@ const paginas = ['index.html', ...fs.readdirSync(path.join(__dirname, '../pagina
     await context.addInitScript(() => localStorage.setItem('kemet_menu_recolhido', '1'));
     const page = await context.newPage();
     await page.goto(base + '/paginas/painel.html');
-    await page.locator('[data-menu-grupo="estoque"] > button').tap();
-    await page.locator('.menu-submenu a[href="receitas.html"]').tap();
+    await page.locator('.navegacao-celular > summary').tap();
+    await page.locator('.navegacao-celular a[href="receitas.html"]').tap();
     await page.waitForURL('**/receitas.html');
     assert.equal(await page.evaluate(() => localStorage.getItem('kemet_menu_recolhido')), '1');
     await page.setViewportSize({ width: 1366, height: 900 });
     assert.ok(await page.locator('body').evaluate(e => e.classList.contains('menu-recolhido')));
     await page.setViewportSize({ width: 390, height: 700 });
-    await page.locator('[data-menu-grupo="gestao"] > button').tap();
-    await page.locator('.menu-submenu a[href="calendario.html"]').tap();
+    await page.locator('.navegacao-celular > summary').tap();
+    await page.locator('.navegacao-celular a[href="calendario.html"]').tap();
     await page.waitForURL('**/calendario.html');
     const titulo = await page.locator('.calendario-navegacao h2').textContent();
     await page.getByRole('button', { name: 'Próximo mês', exact: true }).tap();
@@ -80,6 +93,22 @@ const paginas = ['index.html', ...fs.readdirSync(path.join(__dirname, '../pagina
     await page.locator('[data-perfil-botao]').tap();
     await page.getByRole('menuitem', { name: 'Alternar entre os temas claro e escuro' }).tap();
     assert.ok(await page.locator('body').evaluate(e => e.classList.contains('tema-claro')));
+    await page.goto(base + '/paginas/criar_conta.html');
+    await page.locator('#nome').fill('Teste celular');
+    await page.locator('#cad-email').fill('teste@example.com');
+    await page.locator('#telefone').fill('11999999999');
+    await page.locator('#negocio').fill('Loja teste');
+    await page.locator('#senha').fill('SenhaTeste123');
+    await page.locator('[data-mostrar-senha]').tap();
+    assert.equal(await page.locator('#senha').getAttribute('type'), 'text');
+    await page.locator('#confirmar').fill('SenhaTeste123');
+    await page.locator('#categoria').selectOption('Cafeteria');
+    await page.locator('input[type=checkbox]').check();
+    await page.getByRole('button', { name: 'Criar conta', exact: true }).tap();
+    await page.waitForURL('**/painel.html');
+    await page.locator('.navegacao-celular > summary').tap();
+    await page.keyboard.press('Escape');
+    assert.equal(await page.locator('.navegacao-celular').getAttribute('open'), null);
     await page.goto(base + '/index.html');
     await page.locator('[data-menu-botao]').tap();
     assert.equal(await page.locator('[data-menu-botao]').getAttribute('aria-expanded'), 'true');
