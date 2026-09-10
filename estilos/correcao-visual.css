@@ -1,0 +1,56 @@
+/* Correções visuais — KemetForge */
+:root {
+  --laranja: #F28C28;
+  --laranja-2: #F5A044;
+  --dourado: #D4AF37;
+  --amarelo: #FFBE55;
+  --vermelho: #E53935;
+}
+
+/* Home: evita logo e título desproporcionais e mantém o texto dentro da coluna. */
+.hero-conteudo { min-width: 0; max-width: 720px; }
+.hero-logo {
+  width: min(400px, 82%);
+  max-height: 210px;
+  margin: 0 0 10px;
+}
+.titulo-destaque {
+  max-width: 620px;
+  font-size: clamp(2.6rem, 4.3vw, 4.5rem);
+  line-height: 1.02;
+  letter-spacing: -.045em;
+}
+.subtitulo {
+  max-width: 620px;
+  font-size: clamp(.98rem, 1.2vw, 1.18rem);
+}
+.hero-acoes { gap: 18px; }
+.hero-acoes .botao {
+  min-height: 62px;
+  border-radius: 18px;
+  font-size: 1.05rem;
+}
+
+/* Mantém os destaques de marca em laranja, sem transformar alertas em laranja. */
+.titulo-destaque span,
+.secao-selo,
+.botao-contorno,
+.botao-claro { color: var(--laranja); }
+.botao,
+.chamada-final { background: var(--laranja); }
+.botao-contorno { border-color: var(--laranja); background: #fff; }
+.icone-circulo { color: var(--laranja); }
+
+@media (max-width: 1180px) {
+  .hero-grade { grid-template-columns: 1fr; }
+  .hero-conteudo { max-width: 900px; margin-inline: auto; }
+  .hero-logo { width: min(420px, 78%); }
+  .titulo-destaque { max-width: 760px; }
+}
+
+@media (max-width: 700px) {
+  .hero-logo { width: min(330px, 88%); max-height: 170px; }
+  .titulo-destaque { font-size: clamp(2.35rem, 11vw, 3.5rem); }
+  .hero-acoes { grid-template-columns: 1fr; }
+  .hero-acoes .botao { min-height: 56px; }
+}
